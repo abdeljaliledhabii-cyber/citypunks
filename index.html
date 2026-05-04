@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>CITYPUNKS — Take Back The City</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #00e5ff;
+    --cta: #ff2d78;
+    --bg-dark: #03050b;
+    --text: #ffffff;
+    --text-muted: #b0c4de;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, background 0.2s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.15s ease-out, border-color 0.2s;
+    opacity: 0.5;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 48px;
+    transition: background 0.4s, backdrop-filter 0.4s, border-bottom 0.4s;
+  }
+  nav.solid {
+    background: rgba(5, 8, 16, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    color: var(--text);
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+  .nav-logo span { color: var(--accent); }
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: #8892a4;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    background: var(--cta);
+    color: #fff;
+    padding: 10px 24px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    cursor: none;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: filter 0.2s, transform 0.1s;
+  }
+  .nav-cta:hover { filter: brightness(1.2); transform: scale(1.03); }
+  .nav-cta::before { content: '▶ '; }
+
+  /* Hero (video) */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-end;
+    padding: 0 48px 80px;
+    overflow: hidden;
+    background: var(--bg-dark);
+  }
+  .hero-video-wrapper {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .hero-video-wrapper video {
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+  }
+  .hero-video-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.65) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .hero-video-glow {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(ellipse 60% 50% at 70% 40%, rgba(0, 229, 255, 0.12) 0%, transparent 70%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 3;
+    max-width: 640px;
+    animation: heroIn 1s ease-out both;
+  }
+  @keyframes heroIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero-tag {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 40px; height: 2px;
+    background: var(--accent);
+  }
+  .hero-tag span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .hero-h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(72px, 10vw, 130px);
+    font-weight: 900;
+    line-height: 0.9;
+    text-transform: uppercase;
+    text-shadow: 0 0 30px rgba(0,0,0,0.6);
+  }
+  .hero-h1 .accent-line { color: var(--accent); }
+  .hero-desc {
+    margin-top: 24px;
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 400px;
+    text-shadow: 0 0 5px rgba(0,0,0,0.5);
+  }
+  .hero-actions {
+    margin-top: 40px;
+    display: flex;
+    gap: 28px;
+  }
+  .btn-primary {
+    background: var(--cta);
+    color: #fff;
+    padding: 14px 32px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: none;
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    transition: filter 0.2s, transform 0.1s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before { content: '▶ '; }
+  .btn-primary:hover {
+    filter: brightness(1.15);
+    transform: scale(1.04);
+    box-shadow: 0 0 30px rgba(255,45,120,0.4);
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.4s;
+  }
+  .btn-primary:hover::after { left: 150%; }
+  .btn-ghost {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    text-decoration: none;
+    cursor: none;
+    transition: color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--text); }
+  .btn-ghost .play-icon {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-ghost:hover .play-icon {
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.08);
+    color: var(--accent);
+  }
+  .scroll-indicator {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    text-align: center;
+  }
+  .scroll-indicator span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+    margin: 8px auto 0;
+    animation: scrollPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.1); }
+  }
+  .page-counter {
+    position: absolute;
+    bottom: 40px;
+    right: 48px;
+    z-index: 3;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+  }
+  .page-counter .current { color: rgba(255,255,255,0.7); }
+  .particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0;
+    animation: floatParticle linear infinite;
+  }
+  @keyframes floatParticle {
+    0%   { opacity: 0; transform: translateY(0) scale(1); }
+    10%  { opacity: 0.6; }
+    90%  { opacity: 0.3; }
+    100% { opacity: 0; transform: translateY(-80px) scale(0.5); }
+  }
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(0,229,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ========== FEATURES SECTION ========== */
+  .features {
+    padding: 100px 48px;
+    background: #0b0f1a;
+    border-top: 1px solid rgba(0,229,255,0.2);
+    border-bottom: 1px solid rgba(0,229,255,0.1);
+  }
+  .section-header {
+    margin-bottom: 64px;
+  }
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.2);
+    max-width: 200px;
+  }
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2px;
+  }
+  .feature-card {
+    position: relative;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 36px 28px 28px;
+    transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px; height: 0;
+    background: var(--accent);
+    transition: height 0.3s ease;
+    z-index: 5;
+  }
+  .feature-card:hover {
+    background: rgba(0, 0, 0, 0.85);
+    transform: translateY(-6px);
+    box-shadow: 0 20px 35px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,229,255,0.2);
+  }
+  .feature-card:hover::before {
+    height: 100%;
+  }
+
+  .feature-text {
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+  }
+  .feature-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    margin-bottom: 12px;
+  }
+  .feature-card h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .feature-card p {
+    font-size: 14px;
+    color: #ccddee;
+    line-height: 1.65;
+  }
+
+  /* Image slider (horizontal infinite scroll on card hover) */
+  .image-slider {
+    width: 100%;
+    overflow-x: hidden;
+    border-radius: 8px;
+    margin-top: 16px;
+    position: relative;
+    z-index: 2;
+  }
+  .slider-track {
+    display: flex;
+    gap: 12px;
+    width: fit-content;
+    will-change: transform;
+  }
+  .feature-card:not(:hover) .slider-track {
+    transform: translateX(0);
+    animation: none;
+  }
+  .feature-card:hover .slider-track {
+    animation: slideContinuous 16s linear infinite;
+  }
+  @keyframes slideContinuous {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .slider-img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(0,229,255,0.3);
+    flex-shrink: 0;
+    transition: filter 0.2s;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Image full-card overlay (takes shape and size of parent card) */
+  .img-full-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 20;
+    border-radius: inherit;
+    animation: fadeInOverlay 0.25s ease-out;
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+    background-color: rgba(0,0,0,0.3);
+    background-blend-mode: overlay;
+    pointer-events: none;  /* so it doesn't block interaction */
+  }
+  @keyframes fadeInOverlay {
+    from { opacity: 0; transform: scale(0.98); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @media (max-width: 680px) {
+    .features { padding: 60px 24px; }
+    .feature-card { padding: 24px; }
+    .slider-img { width: 80px; height: 80px; }
+  }
+
+  /* STATS, CTA, FOOTER */
+  .stats {
+    padding: 80px 48px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: #050810;
+  }
+  .stat-item {
+    background: rgba(11, 15, 26, 0.9);
+    padding: 40px 32px;
+    text-align: center;
+    transition: background 0.2s;
+  }
+  .stat-item:hover { background: rgba(0, 229, 255, 0.08); }
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 56px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .cta-section {
+    padding: 120px 48px;
+    text-align: center;
+    background: #0b0f1a;
+    border-top: 1px solid rgba(0,229,255,0.2);
+    border-bottom: 1px solid rgba(0,229,255,0.2);
+  }
+  .cta-section h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: clamp(48px, 7vw, 96px);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 0.9;
+    margin-bottom: 32px;
+  }
+  .cta-section h2 span { color: var(--cta); }
+  .cta-section p {
+    color: var(--text-muted);
+    font-size: 16px;
+    margin-bottom: 48px;
+  }
+  footer {
+    padding: 32px 48px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #03050b;
+  }
+  footer .nav-logo { font-size: 18px; }
+  footer p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.3);
+  }
+  .nav-logo:hover { animation: glitch 0.3s ease-in-out; }
+  @keyframes glitch {
+    0% { text-shadow: none; }
+    20% { text-shadow: 2px 0 var(--cta), -2px 0 var(--accent); }
+    40% { text-shadow: -2px 0 var(--cta), 2px 0 var(--accent); }
+    60% { text-shadow: 1px 0 var(--cta); }
+    100% { text-shadow: none; }
+  }
+
+  /* ========== TWEAKS PANEL (HIDDEN BY DEFAULT) ========== */
+  .tweaks-panel {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 200;
+    background: rgba(11, 15, 26, 0.95);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-top: 2px solid var(--accent);
+    padding: 20px;
+    width: 240px;
+    backdrop-filter: blur(16px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+    opacity: 0;
+    transform: scale(0.9);
+    visibility: hidden;
+  }
+  .tweaks-panel.visible {
+    opacity: 1;
+    transform: scale(1);
+    visibility: visible;
+  }
+  .tweaks-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .tweak-row { margin-bottom: 14px; }
+  .tweak-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.5);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .color-swatch {
+    width: 100%;
+    height: 28px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .swatch-display { width: 100%; height: 100%; }
+  .tweak-select, .tweak-text-input {
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 2px;
+  }
+  .tweak-text-input {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  /* Toggle button - always visible */
+  .tweaks-toggle-btn {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 201;
+    width: 42px;
+    height: 42px;
+    background: rgba(11, 15, 26, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 229, 255, 0.6);
+    border-radius: 50%;
+    color: var(--accent);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    font-family: monospace;
+  }
+  .tweaks-toggle-btn:hover {
+    background: var(--accent);
+    color: #03050b;
+    transform: scale(1.05);
+    border-color: white;
+    box-shadow: 0 0 12px rgba(0,229,255,0.6);
+  }
+  @media (max-width: 860px) {
+    .tweaks-panel, .tweaks-toggle-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav id="navbar">
+  <a href="#" class="nav-logo">CITY<span>PUNKS</span></a>
+  <ul class="nav-links">
+    <li><a href="#play">Play</a></li>
+    <li><a href="#story">Story</a></li>
+    <li><a href="#world">World</a></li>
+    <li><a href="#news">News</a></li>
+    <li><a href="#community">Community</a></li>
+  </ul>
+  <a href="#play" class="nav-cta">Play Now</a>
+</nav>
+
+<!-- HERO (VIDEO) -->
+<section class="hero" id="hero">
+  <div class="hero-video-wrapper">
+    <video autoplay muted loop playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3E%3Crect width='1920' height='1080' fill='%23050810'/%3E%3C/svg%3E">
+      <source src="assets/videos/city-bg-1920x1080.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="hero-video-overlay"></div>
+  <div class="hero-video-glow"></div>
+  <div class="hero-grid"></div>
+  <div class="scanlines"></div>
+  <div class="particles" id="particles"></div>
+
+  <div class="hero-content">
+    <div class="hero-tag"><span id="hero-tag-text">Open World Cyberpunk RPG — 2026</span></div>
+    <h1 class="hero-h1" id="hero-heading">TAKE<br>BACK<br><span class="accent-line" id="hero-accent-line">THE CITY.</span></h1>
+    <p class="hero-desc" id="hero-desc">12 districts. Infinite factions. One city that never sleeps — and never forgives. Your choices reshape everything.</p>
+    <div class="hero-actions">
+      <a href="#play" class="btn-primary">Play Free Now</a>
+      <a href="#trailer" class="btn-ghost"><span class="play-icon">▶</span> Watch the Trailer</a>
+    </div>
+  </div>
+  <div class="scroll-indicator"><span>Scroll</span><div class="scroll-line"></div></div>
+  <div class="page-counter"><span class="current">01</span><span>/</span><span>03</span></div>
+</section>
+
+<!-- FEATURES SECTION (cards with sliding images) -->
+<section class="features" id="world">
+  <div class="section-header">
+    <div class="section-label">The World</div>
+    <h2 class="section-title">A City Alive<br>With Danger</h2>
+  </div>
+  <div class="features-grid">
+    <!-- Card 1 : 12 Districts -->
+    <div class="feature-card" data-card="1">
+      <div class="feature-text">
+        <div class="feature-num">01 —</div>
+        <h3>12 Districts</h3>
+        <p>Every corner of the city holds secrets, power struggles, and factions fighting for control.</p>
+      </div>
+      <div class="image-slider">
+        <div class="slider-track">
+          <img class="slider-img" src="assets/img/district-1.jpg" alt="district1" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/cyan?text=district1'">
+          <img class="slider-img" src="assets/img/district-2.jpg" alt="district2" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/cyan?text=district2'">
+          <img class="slider-img" src="assets/img/district-3.jpg" alt="district3" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/cyan?text=district3'">
+          <img class="slider-img" src="assets/img/district-1.jpg" alt="district1" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/cyan?text=district1'">
+          <img class="slider-img" src="assets/img/district-2.jpg" alt="district2" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/cyan?text=district2'">
+          <img class="slider-img" src="assets/img/district-3.jpg" alt="district3" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/cyan?text=district3'">
+        </div>
+      </div>
+    </div>
+    <!-- Card 2 : Infinite Factions -->
+    <div class="feature-card" data-card="2">
+      <div class="feature-text">
+        <div class="feature-num">02 —</div>
+        <h3>Infinite Factions</h3>
+        <p>Choose your allegiances carefully. Every ally is a potential enemy, every deal a double-cross.</p>
+      </div>
+      <div class="image-slider">
+        <div class="slider-track">
+          <img class="slider-img" src="assets/img/faction-1.jpg" alt="faction1" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/pink?text=faction1'">
+          <img class="slider-img" src="assets/img/faction-2.jpg" alt="faction2" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/pink?text=faction2'">
+          <img class="slider-img" src="assets/img/faction-3.jpg" alt="faction3" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/pink?text=faction3'">
+          <img class="slider-img" src="assets/img/faction-1.jpg" alt="faction1" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/pink?text=faction1'">
+          <img class="slider-img" src="assets/img/faction-2.jpg" alt="faction2" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/pink?text=faction2'">
+          <img class="slider-img" src="assets/img/faction-3.jpg" alt="faction3" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/pink?text=faction3'">
+        </div>
+      </div>
+    </div>
+    <!-- Card 3 : Dynamic Night Cycle -->
+    <div class="feature-card" data-card="3">
+      <div class="feature-text">
+        <div class="feature-num">03 —</div>
+        <h3>Dynamic Night Cycle</h3>
+        <p>The city transforms at midnight. New threats emerge, and power shifts when the lights go dark.</p>
+      </div>
+      <div class="image-slider">
+        <div class="slider-track">
+          <img class="slider-img" src="assets/img/night-1.jpg" alt="night1" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/blue?text=night1'">
+          <img class="slider-img" src="assets/img/night-2.jpg" alt="night2" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/blue?text=night2'">
+          <img class="slider-img" src="assets/img/night-3.jpg" alt="night3" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/blue?text=night3'">
+          <img class="slider-img" src="assets/img/night-1.jpg" alt="night1" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/blue?text=night1'">
+          <img class="slider-img" src="assets/img/night-2.jpg" alt="night2" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/blue?text=night2'">
+          <img class="slider-img" src="assets/img/night-3.jpg" alt="night3" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/blue?text=night3'">
+        </div>
+      </div>
+    </div>
+    <!-- Card 4 : Your Choices Matter -->
+    <div class="feature-card" data-card="4">
+      <div class="feature-text">
+        <div class="feature-num">04 —</div>
+        <h3>Your Choices Matter</h3>
+        <p>Branching narratives where every decision ripples across the city. No playthrough is the same.</p>
+      </div>
+      <div class="image-slider">
+        <div class="slider-track">
+          <img class="slider-img" src="assets/img/choice-1.jpg" alt="choice1" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/purple?text=choice1'">
+          <img class="slider-img" src="assets/img/choice-2.jpg" alt="choice2" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/purple?text=choice2'">
+          <img class="slider-img" src="assets/img/choice-3.jpg" alt="choice3" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/purple?text=choice3'">
+          <img class="slider-img" src="assets/img/choice-1.jpg" alt="choice1" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/purple?text=choice1'">
+          <img class="slider-img" src="assets/img/choice-2.jpg" alt="choice2" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/purple?text=choice2'">
+          <img class="slider-img" src="assets/img/choice-3.jpg" alt="choice3" loading="lazy" onerror="this.src='https://placehold.co/100x100/111/purple?text=choice3'">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS, CTA, FOOTER -->
+<div class="stats">
+  <div class="stat-item"><div class="stat-num">2M+</div><div class="stat-label">Players Online</div></div>
+  <div class="stat-item"><div class="stat-num">12</div><div class="stat-label">Districts</div></div>
+  <div class="stat-item"><div class="stat-num">500+</div><div class="stat-label">Missions</div></div>
+  <div class="stat-item"><div class="stat-num">∞</div><div class="stat-label">Choices</div></div>
+</div>
+
+<section class="cta-section" id="play">
+  <h2>Join The<br><span>Revolution</span></h2>
+  <p>The city is waiting. Are you ready to take it back?</p>
+  <a href="#" class="btn-primary" style="display:inline-block; padding: 18px 48px; font-size: 15px;">Play Free Now</a>
+</section>
+
+<footer>
+  <a href="#" class="nav-logo">CITY<span>PUNKS</span></a>
+  <p>© 2026 CITYPUNKS. All rights reserved.</p>
+  <p>Privacy · Terms · Press</p>
+</footer>
+
+<!-- TWEAKS PANEL (hidden by default) -->
+<div class="tweaks-panel" id="tweaksPanel">
+  <div class="tweaks-title">Tweaks</div>
+  <div class="tweak-row"><label class="tweak-label">Accent Colour</label><div class="color-swatch" id="accentSwatchWrap"><div class="swatch-display" id="accentSwatch" style="background:#00e5ff"></div></div><input type="color" id="accentColor" value="#00e5ff" style="display:none;"></div>
+  <div class="tweak-row"><label class="tweak-label">CTA Colour</label><div class="color-swatch" id="ctaSwatchWrap"><div class="swatch-display" id="ctaSwatch" style="background:#ff2d78"></div></div><input type="color" id="ctaColor" value="#ff2d78" style="display:none;"></div>
+  <div class="tweak-row"><label class="tweak-label">Game Title</label><input type="text" class="tweak-text-input" id="gameTitleInput" value="CITYPUNKS"></div>
+  <div class="tweak-row"><label class="tweak-label">Hero H1 Style</label><select class="tweak-select" id="heroStyle"><option value="takeback">Take Back The City</option><option value="riseup">Rise Up, Fall Down</option><option value="nomercy">No Mercy Given</option><option value="ownit">Own Every Street</option></select></div>
+  <div class="tweak-row"><label class="tweak-label">Nav Style</label><select class="tweak-select" id="navStyleSelect"><option value="transparent">Transparent on scroll</option><option value="solid">Always solid</option><option value="glass">Always glass</option></select></div>
+</div>
+
+<!-- Toggle button (always visible) -->
+<div class="tweaks-toggle-btn" id="toggleTweaksBtn">⚙️</div>
+
+<script>
+  // Custom cursor & particles
+  const cursor = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    setTimeout(() => {
+      cursorRing.style.left = e.clientX + 'px';
+      cursorRing.style.top = e.clientY + 'px';
+    }, 60);
+  });
+  document.querySelectorAll('a, button, input, select, .color-swatch, .slider-img, .tweaks-toggle-btn').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
+      cursorRing.style.opacity = '0.2';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+      cursorRing.style.opacity = '0.5';
+    });
+  });
+
+  // Particles
+  const particlesEl = document.getElementById('particles');
+  function spawnParticle() {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 60 + 20 + '%';
+    p.style.top = Math.random() * 60 + 30 + '%';
+    p.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    p.style.animationDelay = Math.random() * 2 + 's';
+    p.style.width = p.style.height = (Math.random() * 2 + 1) + 'px';
+    particlesEl.appendChild(p);
+    setTimeout(() => p.remove(), 6000);
+  }
+  setInterval(spawnParticle, 400);
+
+  // Nav scroll
+  const navbar = document.getElementById('navbar');
+  let navStyle = 'transparent';
+  function updateNav() {
+    if (navStyle === 'solid' || navStyle === 'glass') navbar.classList.add('solid');
+    else if (window.scrollY > 60) navbar.classList.add('solid');
+    else navbar.classList.remove('solid');
+  }
+  window.addEventListener('scroll', updateNav);
+  updateNav();
+
+  // IMAGE HOVER EFFECT: full-card overlay (image takes shape and size of parent card)
+  const images = document.querySelectorAll('.slider-img');
+  images.forEach(img => {
+    img.addEventListener('mouseenter', function() {
+      const card = this.closest('.feature-card');
+      if (!card) return;
+      // Remove any existing overlay to avoid duplicates
+      const existing = card.querySelector('.img-full-overlay');
+      if (existing) existing.remove();
+      const overlay = document.createElement('div');
+      overlay.className = 'img-full-overlay';
+      let src = this.getAttribute('src');
+      overlay.style.backgroundImage = `url(${src})`;
+      card.appendChild(overlay);
+    });
+    img.addEventListener('mouseleave', function() {
+      const card = this.closest('.feature-card');
+      if (card) {
+        const overlay = card.querySelector('.img-full-overlay');
+        if (overlay) overlay.remove();
+      }
+    });
+  });
+
+  // TWEAKS PANEL TOGGLE (hidden by default)
+  const panel = document.getElementById('tweaksPanel');
+  const toggleBtn = document.getElementById('toggleTweaksBtn');
+  let panelVisible = false;  // initially hidden
+  toggleBtn.addEventListener('click', () => {
+    if (panelVisible) {
+      panel.classList.remove('visible');
+    } else {
+      panel.classList.add('visible');
+    }
+    panelVisible = !panelVisible;
+  });
+
+  // Tweaks functionality (colors, title, hero style, nav style)
+  const root = document.documentElement;
+  const accentColorInput = document.getElementById('accentColor');
+  const accentSwatch = document.getElementById('accentSwatch');
+  document.getElementById('accentSwatchWrap').addEventListener('click', () => accentColorInput.click());
+  accentColorInput.addEventListener('input', e => {
+    root.style.setProperty('--accent', e.target.value);
+    accentSwatch.style.background = e.target.value;
+  });
+  const ctaColorInput = document.getElementById('ctaColor');
+  const ctaSwatch = document.getElementById('ctaSwatch');
+  document.getElementById('ctaSwatchWrap').addEventListener('click', () => ctaColorInput.click());
+  ctaColorInput.addEventListener('input', e => {
+    root.style.setProperty('--cta', e.target.value);
+    ctaSwatch.style.background = e.target.value;
+  });
+
+  document.getElementById('gameTitleInput').addEventListener('input', e => {
+    let val = e.target.value.toUpperCase().trim();
+    if (!val) val = "CITYPUNKS";
+    document.querySelectorAll('.nav-logo').forEach(el => {
+      if (val.length > 1) el.innerHTML = val.slice(0, -1) + '<span>' + val.slice(-1) + '</span>';
+      else el.innerHTML = val + '<span>' + (val === "" ? "C" : "") + '</span>';
+    });
+  });
+
+  const heroH1 = document.getElementById('hero-heading');
+  const heroDesc = document.getElementById('hero-desc');
+  const heroStyles = {
+    takeback: { lines: ['TAKE', 'BACK', '<span class="accent-line">THE CITY.</span>'], desc: '12 districts. Infinite factions. One city that never sleeps — and never forgives. Your choices reshape everything.' },
+    riseup:   { lines: ['RISE', 'UP,', '<span class="accent-line">FALL DOWN.</span>'], desc: 'Every street tells a story. Every choice writes yours. Will you rise — or get buried?' },
+    nomercy:  { lines: ['NO', 'MERCY', '<span class="accent-line">GIVEN.</span>'], desc: 'The city has no pity for the weak. Come prepared, or don\'t come at all.' },
+    ownit:    { lines: ['OWN', 'EVERY', '<span class="accent-line">STREET.</span>'], desc: 'Territory is power. Claim your turf, defend your legacy, and leave your mark on the city.' },
+  };
+  document.getElementById('heroStyle').addEventListener('change', e => {
+    const s = heroStyles[e.target.value];
+    heroH1.innerHTML = s.lines.join('<br>');
+    heroDesc.textContent = s.desc;
+  });
+
+  document.getElementById('navStyleSelect').addEventListener('change', e => {
+    navStyle = e.target.value;
+    updateNav();
+  });
+</script>
+</body>
+</html>
